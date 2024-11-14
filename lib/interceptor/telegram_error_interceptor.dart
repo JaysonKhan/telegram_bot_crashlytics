@@ -52,52 +52,52 @@ class TelegramErrorInterceptor extends Interceptor {
     switch (err.type) {
       case DioErrorType.sendTimeout:
         errorMessage = "*Send Timeout Error*\n\n"
-            "⏰ *Message:* _${errMessage}_\n"
+            "⏰ *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.receiveTimeout:
         errorMessage = "*Receive Timeout Error*\n\n"
-            "⏳ *Message:* _${errMessage}_\n"
+            "⏳ *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.cancel:
         errorMessage = "*Request Cancelled*\n\n"
-            "🚫 *Message:* _${errMessage}_\n"
+            "🚫 *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.connectionTimeout:
         errorMessage = "*Connection Timeout*\n\n"
-            "🔗 *Message:* _${errMessage}_\n"
+            "🔗 *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.badCertificate:
         errorMessage = "*Bad Certificate Error*\n\n"
-            "📜 *Message:* _${errMessage}_\n"
+            "📜 *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.badResponse:
         errorMessage = "*Bad Response*\n\n"
             "⚠️ *Status Code:* `$statusCode`\n"
-            "*Status Message:* _${statusMessage}_\n"
+            "*Status Message:* $statusMessage\n"
             "*URL:* `$url`\n"
-            "*Error Details:* _${errMessage}_";
+            "*Error Details:* $errMessage";
         break;
 
       case DioErrorType.connectionError:
         errorMessage = "*Connection Error*\n\n"
-            "🔌 *Message:* _${errMessage}_\n"
+            "🔌 *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.unknown:
       default:
         errorMessage = "*Unknown Error*\n\n"
-            "❓ *Message:* _${errMessage}_\n"
+            "❓ *Message:* $errMessage\n"
             "*URL:* `$url`";
         break;
     }
@@ -121,9 +121,9 @@ class TelegramErrorInterceptor extends Interceptor {
       String errorMessage = "*Bad Response*\n\n"
           "🔴 *Method:* `$method`\n"
           "⚠️ *Status Code:* `$statusCode`\n"
-          "*Status Message:* _${statusMessage}_\n"
+          "*Status Message:* $statusMessage\n"
           "*URL:* `$url`\n"
-          "*Response Data:* _${responseData}_";
+          "*Response Data:* $responseData";
       sendErrorToTelegram(errorMessage);
     }
     super.onResponse(response, handler);
@@ -131,6 +131,7 @@ class TelegramErrorInterceptor extends Interceptor {
 
   /// Escape MarkdownV2 special characters
   String escapeMarkdown(String text) {
-    return text.replaceAllMapped(RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
+    return text.replaceAllMapped(
+        RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
   }
 }
