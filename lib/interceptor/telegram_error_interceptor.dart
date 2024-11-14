@@ -52,52 +52,52 @@ class TelegramErrorInterceptor extends Interceptor {
     switch (err.type) {
       case DioErrorType.sendTimeout:
         errorMessage = "*Send Timeout Error*\n\n"
-            "⏰ *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "⏰ *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.receiveTimeout:
         errorMessage = "*Receive Timeout Error*\n\n"
-            "⏳ *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "⏳ *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.cancel:
         errorMessage = "*Request Cancelled*\n\n"
-            "🚫 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "🚫 *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.connectionTimeout:
         errorMessage = "*Connection Timeout*\n\n"
-            "🔗 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "🔗 *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.badCertificate:
         errorMessage = "*Bad Certificate Error*\n\n"
-            "📜 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "📜 *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.badResponse:
         errorMessage = "*Bad Response*\n\n"
             "⚠️ *Status Code:* `$statusCode`\n"
-            "*Status Message:* _${escapeMarkdown(statusMessage)}_\n"
+            "*Status Message:* _${statusMessage}_\n"
             "*URL:* `$url`\n"
-            "*Error Details:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_";
+            "*Error Details:* _${err.message ?? 'Unknown Error'}_";
         break;
 
       case DioErrorType.connectionError:
         errorMessage = "*Connection Error*\n\n"
-            "🔌 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "🔌 *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.unknown:
       default:
         errorMessage = "*Unknown Error*\n\n"
-            "❓ *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
+            "❓ *Message:* _${err.message ?? 'Unknown Error'}_\n"
             "*URL:* `$url`";
         break;
     }
