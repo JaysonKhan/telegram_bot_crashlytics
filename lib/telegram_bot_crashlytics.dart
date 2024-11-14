@@ -4,7 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:telegram_bot_crashlytics/interceptor/telegram_error_interceptor.dart';
 
 class TelegramBotCrashlytics {
+  /// Telegram Bot Token: The token of the bot that will send the error messages
   final String botToken;
+
+  /// Telegram Chat ID: The ID of the chat where the error messages will be sent
   final int chatId;
 
   static TelegramBotCrashlytics? _instance;
@@ -27,5 +30,15 @@ class TelegramBotCrashlytics {
       throw Exception("TelegramBotCrashlytics instance not initialized. Please call the constructor first.");
     }
     return _instance!;
+  }
+
+  /// Send error message to Telegram function
+  Future<void> sendErrorToTelegram(String errorMessage) async {
+    await _telegramErrorInterceptor
+        .sendErrorToTelegram("🚨 *Error occurred in the application*\n\n📝 *Message:* _${errorMessage}_");
+  }
+
+  Future<void> sendInfoToTelegram(String message) async {
+    await _telegramErrorInterceptor.sendErrorToTelegram("📢 *Information*\n\n📝 *Message:* _${message}_");
   }
 }

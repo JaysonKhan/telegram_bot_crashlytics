@@ -1,33 +1,37 @@
 import 'dart:developer';
 
-import 'package:dart_telegram_bot/dart_telegram_bot.dart';
-import 'package:dart_telegram_bot/telegram_entities.dart';
 import 'package:dio/dio.dart';
+import 'package:telegram_bot_crashlytics/dart_telegram_bot/dart_telegram_bot.dart';
+import 'package:telegram_bot_crashlytics/dart_telegram_bot/telegram_entities.dart';
+import 'package:telegram_bot_crashlytics/utils/tbc_functions.dart';
 
 class TelegramErrorInterceptor extends Interceptor {
+  /// Telegram Bot Token
   final String botToken;
+
+  /// Telegram Chat ID
   final int chatId;
 
-  // Singleton instansiyasi
+  /// Singleton instance
   static TelegramErrorInterceptor? _instance;
 
-  // Singleton konstruktor
+  /// Singleton factory
   factory TelegramErrorInterceptor({required String botToken, required int chatId}) {
     _instance ??= TelegramErrorInterceptor._internal(botToken, chatId);
     return _instance!;
   }
 
-  // Private konstruktor
+  /// Private constructor
   TelegramErrorInterceptor._internal(this.botToken, this.chatId);
 
-  // Xatolikni Telegram botga yuborish funksiyasi
+  /// Send error message to Telegram function
   Future<void> sendErrorToTelegram(String errorMessage) async {
     final bot = Bot(token: botToken);
     try {
       await bot.sendMessage(
         ChatID(chatId),
         errorMessage,
-        parseMode: ParseMode.markdownV2,  // MarkdownV2 formatida yuborish
+        parseMode: ParseMode.markdownV2,
       );
       log('Error message sent to Telegram successfully');
     } catch (e) {
@@ -39,39 +43,40 @@ class TelegramErrorInterceptor extends Interceptor {
   void onError(DioError err, ErrorInterceptorHandler handler) {
     String errorMessage;
 
-    // Request va status code ma'lumotlarini olish
+    /// Get the request URL, status code and status message
     String url = err.requestOptions.uri.toString();
     String statusCode = err.response?.statusCode?.toString() ?? 'Unknown';
     String statusMessage = err.response?.statusMessage ?? 'No status message';
 
+    /// Find out the error type and create an error message
     switch (err.type) {
       case DioErrorType.sendTimeout:
         errorMessage = "*Send Timeout Error*\n\n"
-            "⏰ *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "⏰ *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.receiveTimeout:
         errorMessage = "*Receive Timeout Error*\n\n"
-            "⏳ *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "⏳ *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.cancel:
         errorMessage = "*Request Cancelled*\n\n"
-            "🚫 *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "🚫 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.connectionTimeout:
         errorMessage = "*Connection Timeout*\n\n"
-            "🔗 *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "🔗 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.badCertificate:
         errorMessage = "*Bad Certificate Error*\n\n"
-            "📜 *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "📜 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
 
@@ -80,30 +85,27 @@ class TelegramErrorInterceptor extends Interceptor {
             "⚠️ *Status Code:* `$statusCode`\n"
             "*Status Message:* _${escapeMarkdown(statusMessage)}_\n"
             "*URL:* `$url`\n"
-            "*Error Details:* _${escapeMarkdown(err.message??'Unknown Error')}_";
+            "*Error Details:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_";
         break;
 
       case DioErrorType.connectionError:
         errorMessage = "*Connection Error*\n\n"
-            "🔌 *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "🔌 *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
 
       case DioErrorType.unknown:
       default:
         errorMessage = "*Unknown Error*\n\n"
-            "❓ *Message:* _${escapeMarkdown(err.message??'Unknown Error')}_\n"
+            "❓ *Message:* _${escapeMarkdown(err.message ?? 'Unknown Error')}_\n"
             "*URL:* `$url`";
         break;
     }
 
-    // Xabarni Telegram'ga yuborish
+    /// Send error message to Telegram
     sendErrorToTelegram(errorMessage);
-    handler.next(err);
-  }
 
-  // Markdown formatidagi maxsus belgilarni qochirish funksiyasi
-  String escapeMarkdown(String text) {
-    return text.replaceAllMapped(RegExp(r'([_*`$begin:math:display$$end:math:display$])'), (match) => '\\${match[0]}');
+    /// Call the next error handler
+    handler.next(err);
   }
 }
