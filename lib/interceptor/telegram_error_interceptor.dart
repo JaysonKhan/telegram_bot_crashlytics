@@ -125,12 +125,14 @@ class TelegramErrorInterceptor extends Interceptor {
       String method = escapeMarkdown(response.requestOptions.method);
       String url = escapeMarkdown(response.requestOptions.uri.toString());
       String statusCode = escapeMarkdown(response.statusCode.toString());
+      String requestMessage = escapeMarkdown(response.requestOptions.data?.toString() ?? 'No request data');
       String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
 
       String errorMessage = "$sticker *Bad Response*\n\n"
           "🔴 *Method:* `$method`\n"
           "⚠️ *Status Code:* `$statusCode`\n"
           "🌐 *URL:* `$url`\n"
+          "📝 *Request Data:* $requestMessage\n"
           "📄 *Response Data:* $responseData";
       sendErrorToTelegram(errorMessage);
     }
