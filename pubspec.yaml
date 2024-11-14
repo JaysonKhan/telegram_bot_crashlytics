@@ -1,7 +1,8 @@
 name: telegram_bot_crashlytics
 description: "A new Flutter package which xullas apidan kelgan bad responcelani telegram guruhingizga tashlab beradi"
 version: 0.0.1
-homepage:
+homepage: "https://github.com/JaysonKhan/telegram_bot_crashlytics.git"
+repository: "https://github.com/JaysonKhan/telegram_bot_crashlytics"
 
 environment:
   sdk: ^3.5.3
