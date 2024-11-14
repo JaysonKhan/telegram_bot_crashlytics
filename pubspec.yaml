@@ -3,7 +3,7 @@ description: "A new Flutter package which xullas apidan kelgan bad responcelani 
 version: 0.0.1
 homepage: "https://github.com/JaysonKhan/telegram_bot_crashlytics.git"
 repository: "https://github.com/JaysonKhan/telegram_bot_crashlytics"
-license: "MIT"  # MIT litsenziyasini qo'shildi
+license: "MIT"
 
 environment:
   sdk: ">=3.5.3 <4.0.0"
