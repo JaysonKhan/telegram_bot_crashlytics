@@ -131,6 +131,6 @@ class TelegramErrorInterceptor extends Interceptor {
 
   /// Escape MarkdownV2 special characters
   String escapeMarkdown(String text) {
-    return text.replaceAllMapped(RegExp(r'([_*`\[\]{}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
+    return text.replaceAllMapped(RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
   }
 }
