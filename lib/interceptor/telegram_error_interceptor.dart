@@ -41,7 +41,6 @@ class TelegramErrorInterceptor extends Interceptor {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) {
     String errorMessage;
-    print('====> Error occurred: $err');
 
     /// Get the request URL, status code and status message
     String url = err.requestOptions.uri.toString();
@@ -107,5 +106,23 @@ class TelegramErrorInterceptor extends Interceptor {
 
     /// Call the next error handler
     handler.next(err);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if ((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) {
+      String method = response.requestOptions.method;
+      String url = response.requestOptions.uri.toString();
+      String statusCode = response.statusCode.toString();
+      String statusMessage = response.statusMessage ?? 'No status message';
+      String errorMessage = "*Bad Response*\n\n"
+          "🔴 *Method:* `$method`\n"
+          "⚠️ *Status Code:* `$statusCode`\n"
+          "*Status Message:* _${statusMessage}_\n"
+          "*URL:* `$url`\n"
+          "*Response Data:* _${response.data ?? 'No response data'}_";
+      sendErrorToTelegram(errorMessage);
+    }
+    super.onResponse(response, handler);
   }
 }
