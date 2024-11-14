@@ -41,68 +41,77 @@ class TelegramErrorInterceptor extends Interceptor {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) {
     String errorMessage;
+    String sticker;
 
-    /// Get the request URL, status code and status message
+    /// Get the request URL, status code, status message, and error message
     String url = escapeMarkdown(err.requestOptions.uri.toString());
     String statusCode = escapeMarkdown(err.response?.statusCode?.toString() ?? 'Unknown');
     String statusMessage = escapeMarkdown(err.response?.statusMessage ?? 'No status message');
     String errMessage = escapeMarkdown(err.message ?? 'Unknown Error');
 
-    /// Find out the error type and create an error message
+    /// Define sticker and create an error message with stickers for each line
     switch (err.type) {
       case DioErrorType.sendTimeout:
-        errorMessage = "*Send Timeout Error*\n\n"
+        sticker = '⏰';
+        errorMessage = "$sticker *Send Timeout Error*\n\n"
             "⏰ *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.receiveTimeout:
-        errorMessage = "*Receive Timeout Error*\n\n"
+        sticker = '⏳';
+        errorMessage = "$sticker *Receive Timeout Error*\n\n"
             "⏳ *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.cancel:
-        errorMessage = "*Request Cancelled*\n\n"
+        sticker = '🚫';
+        errorMessage = "$sticker *Request Cancelled*\n\n"
             "🚫 *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.connectionTimeout:
-        errorMessage = "*Connection Timeout*\n\n"
+        sticker = '🔗';
+        errorMessage = "$sticker *Connection Timeout*\n\n"
             "🔗 *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.badCertificate:
-        errorMessage = "*Bad Certificate Error*\n\n"
+        sticker = '📜';
+        errorMessage = "$sticker *Bad Certificate Error*\n\n"
             "📜 *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.badResponse:
-        errorMessage = "*Bad Response*\n\n"
+        sticker = '⚠️';
+        errorMessage = "$sticker *Bad Response*\n\n"
             "⚠️ *Status Code:* `$statusCode`\n"
-            "*Status Message:* $statusMessage\n"
-            "*URL:* `$url`\n"
-            "*Error Details:* $errMessage";
+            "📝 *Status Message:* $statusMessage\n"
+            "🌐 *URL:* `$url`\n"
+            "💥 *Error Details:* $errMessage";
         break;
 
       case DioErrorType.connectionError:
-        errorMessage = "*Connection Error*\n\n"
+        sticker = '🔌';
+        errorMessage = "$sticker *Connection Error*\n\n"
             "🔌 *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.unknown:
       default:
-        errorMessage = "*Unknown Error*\n\n"
+        sticker = '❓';
+        errorMessage = "$sticker *Unknown Error*\n\n"
             "❓ *Message:* $errMessage\n"
-            "*URL:* `$url`";
+            "🌐 *URL:* `$url`";
         break;
     }
 
-    /// Send error message to Telegram
+    /// Send error message with sticker to Telegram
     sendErrorToTelegram(errorMessage);
 
     /// Call the next error handler
@@ -112,18 +121,17 @@ class TelegramErrorInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if ((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) {
+      String sticker = '🔴';
       String method = escapeMarkdown(response.requestOptions.method);
       String url = escapeMarkdown(response.requestOptions.uri.toString());
       String statusCode = escapeMarkdown(response.statusCode.toString());
-      String statusMessage = escapeMarkdown(response.statusMessage ?? 'No status message');
       String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
 
-      String errorMessage = "*Bad Response*\n\n"
+      String errorMessage = "$sticker *Bad Response*\n\n"
           "🔴 *Method:* `$method`\n"
           "⚠️ *Status Code:* `$statusCode`\n"
-          "*Status Message:* $statusMessage\n"
-          "*URL:* `$url`\n"
-          "*Response Data:* $responseData";
+          "🌐 *URL:* `$url`\n"
+          "📄 *Response Data:* $responseData";
       sendErrorToTelegram(errorMessage);
     }
     super.onResponse(response, handler);
