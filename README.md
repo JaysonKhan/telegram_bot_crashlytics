@@ -57,7 +57,9 @@ void main() {
 
 ### 4. Monitoring Errors
 
-When making HTTP requests with `Dio`, errors are automatically sent to Telegram. If you want to manually send a message:
+When making HTTP requests with `Dio`, errors are automatically sent to Telegram via the interceptor.
+
+If you want to manually send a message outside of Dio errors:
 
 ```dart
 await telegramCrashlytics.sendErrorToTelegram("Describe the error here.");
@@ -73,13 +75,10 @@ You can use the `sendErrorToTelegram` and `sendInfoToTelegram` methods to send c
 ## Example Usage
 
 ```dart
-try {
-  // Executing HTTP request
-  final response = await dio.get('https://jsonplaceholder.typicode.com/posts');
-} catch (e) {
-  // Send error message to Telegram when an error occurs
-  await telegramCrashlytics.sendErrorToTelegram("An error occurred with the HTTP request: $e");
-}
+// Executing HTTP request with Dio
+final response = await dio.get('https://jsonplaceholder.typicode.com/posts');
+
+// If an error occurs, it will be automatically sent to Telegram by the interceptor.
 ```
 
 ## Join Our Channel
