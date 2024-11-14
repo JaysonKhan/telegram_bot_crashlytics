@@ -41,6 +41,7 @@ class TelegramErrorInterceptor extends Interceptor {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) {
     String errorMessage;
+    print('====> Error occurred: $err');
 
     /// Get the request URL, status code and status message
     String url = err.requestOptions.uri.toString();
