@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/dart_telegram_bot.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/telegram_entities.dart';
-import 'package:telegram_bot_crashlytics/utils/tbc_functions.dart';
 
 class TelegramErrorInterceptor extends Interceptor {
   /// Telegram Bot Token
