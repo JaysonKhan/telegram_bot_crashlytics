@@ -3,7 +3,7 @@
 
 Telegram Bot Crashlytics is a package that works with the `Dio` library to send application errors directly to Telegram. With this package, you can send errors from your app to your Telegram group or channel in real-time.
 
-<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxodXByN284b3dsdnA0bWc4c3kyYW96NTc4eGVqMHV0a2s0M250NCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Zll2OF7cp3HkAhxkJM/giphy.gif" alt="Created by JaysonKhan"/>
+<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxodXByN284b3dsdnA0bWc4c3kyYW96NTc4eGVqMHV0a2s0M250NCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Zll2OF7cp3HkAhxkJM/giphy.gif" alt="Created by JaysonKhan" width="591"/>
 
 ## Features
 - Automatic error reporting to Telegram.
