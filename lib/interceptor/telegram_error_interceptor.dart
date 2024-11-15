@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/dart_telegram_bot.dart';
@@ -32,7 +33,6 @@ class TelegramErrorInterceptor extends Interceptor {
         errorMessage,
         parseMode: ParseMode.markdownV2,
       );
-      log('Error message sent to Telegram successfully');
     } catch (e) {
       log('Failed to send error message to Telegram: $e');
     }
@@ -45,68 +45,65 @@ class TelegramErrorInterceptor extends Interceptor {
 
     /// Get the request URL, status code, status message, and error message
     String url = escapeMarkdown(err.requestOptions.uri.toString());
-    String statusCode = escapeMarkdown(err.response?.statusCode?.toString() ?? 'Unknown');
-    String statusMessage = escapeMarkdown(err.response?.statusMessage ?? 'No status message');
     String errMessage = escapeMarkdown(err.message ?? 'Unknown Error');
+    String device = getDevice();
 
     /// Define sticker and create an error message with stickers for each line
     switch (err.type) {
       case DioErrorType.sendTimeout:
         sticker = '⏰';
         errorMessage = "$sticker *Send Timeout Error*\n\n"
-            "⏰ *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.receiveTimeout:
         sticker = '⏳';
         errorMessage = "$sticker *Receive Timeout Error*\n\n"
-            "⏳ *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.cancel:
         sticker = '🚫';
         errorMessage = "$sticker *Request Cancelled*\n\n"
-            "🚫 *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.connectionTimeout:
         sticker = '🔗';
         errorMessage = "$sticker *Connection Timeout*\n\n"
-            "🔗 *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.badCertificate:
         sticker = '📜';
         errorMessage = "$sticker *Bad Certificate Error*\n\n"
-            "📜 *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
-        break;
-
-      case DioErrorType.badResponse:
-        sticker = '⚠️';
-        errorMessage = "$sticker *Bad Response*\n\n"
-            "⚠️ *Status Code:* `$statusCode`\n"
-            "📝 *Status Message:* $statusMessage\n"
-            "🌐 *URL:* `$url`\n"
-            "💥 *Error Details:* $errMessage";
         break;
 
       case DioErrorType.connectionError:
         sticker = '🔌';
         errorMessage = "$sticker *Connection Error*\n\n"
-            "🔌 *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
       case DioErrorType.unknown:
       default:
-        sticker = '❓';
+        sticker = '🤷🏻‍♀️🤷🏻‍♂️';
         errorMessage = "$sticker *Unknown Error*\n\n"
-            "❓ *Message:* $errMessage\n"
+            "📱 *Device:* $device\n"
+            "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
     }
@@ -127,8 +124,10 @@ class TelegramErrorInterceptor extends Interceptor {
       String statusCode = escapeMarkdown(response.statusCode.toString());
       String requestMessage = escapeMarkdown(response.requestOptions.data?.toString() ?? 'No request data');
       String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
+      String device = getDevice();
 
       String errorMessage = "$sticker *Bad Response*\n\n"
+          "📱 *Device:* $device\n"
           "🔴 *Method:* `$method`\n"
           "⚠️ *Status Code:* `$statusCode`\n"
           "🌐 *URL:* `$url`\n"
@@ -143,5 +142,27 @@ class TelegramErrorInterceptor extends Interceptor {
   String escapeMarkdown(String text) {
     return text.replaceAllMapped(
         RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
+  }
+
+  String getDevice() {
+    String device = 'Unknown Device';
+    switch (Platform.operatingSystem) {
+      case 'android':
+        device = '📱 Android';
+        break;
+      case 'ios':
+        device = '🍏 iOS';
+        break;
+      case 'linux':
+        device = '📟 Linux';
+        break;
+      case 'macos':
+        device = '🖥 macOS';
+        break;
+      case 'windows':
+        device = '💠 Windows';
+        break;
+    }
+    return device;
   }
 }

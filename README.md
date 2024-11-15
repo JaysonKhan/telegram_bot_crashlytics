@@ -3,7 +3,7 @@
 
 Telegram Bot Crashlytics is a package that works with the `Dio` library to send application errors directly to Telegram. With this package, you can send errors from your app to your Telegram group or channel in real-time.
 
-![Telegram Bot Crashlytics](example_function1.png)
+![Telegram Bot Crashlytics](images/example_function1.png)
 
 ## Features
 - Automatic error reporting to Telegram.
@@ -31,11 +31,21 @@ flutter pub add telegram_bot_crashlytics
 
 To create a new bot in Telegram, contact `BotFather` and obtain the bot token.
 
+![How to get bot token](images/how_to_get_bot_token.png)
+
 ### 2. Obtaining the Telegram Chat ID
 
 Identify the `Chat ID` of the group or channel where you want to receive messages. You can find this by sending a message to yourself or the bot and then accessing it through the API: `https://api.telegram.org/bot<your-bot-token>/getUpdates`.
 
-### 3. Setting up Telegram Bot Crashlytics
+![How to get chat ID](images/how_to_get_chat_id.png)
+
+### 3. Verifying the Result from Chat
+
+After sending a test message, you should see a response similar to the following:
+
+![Result from chat](images/result_from_chat.png)
+
+### 4. Setting up Telegram Bot Crashlytics
 
 Configure the package in your app as follows:
 
@@ -55,7 +65,7 @@ void main() {
 }
 ```
 
-### 4. Monitoring Errors
+### 5. Monitoring Errors
 
 When making HTTP requests with `Dio`, errors are automatically sent to Telegram via the interceptor.
 
@@ -69,8 +79,6 @@ await telegramCrashlytics.sendInfoToTelegram("Provide additional information her
 ## Additional Settings
 
 You can use the `sendErrorToTelegram` and `sendInfoToTelegram` methods to send custom messages.
-
-![Telegram Crashlytics Demo](example_function2.gif)
 
 ## Example Usage
 
