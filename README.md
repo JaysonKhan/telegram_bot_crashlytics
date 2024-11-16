@@ -33,7 +33,7 @@ flutter pub add telegram_bot_crashlytics
 
 To create a new bot in Telegram, contact `BotFather` and obtain the bot token.
 
-<img src="images/how_to_get_bot_token.png" alt="How to get bot token" width="300"/> <img src="images/how_to_get_chat_id.png" alt="How to get chat ID" width="300"/>
+<img src="https://github.com/JaysonKhan/telegram_bot_crashlytics/blob/master/images/how_to_get_bot_token.png?raw=true" alt="How to get bot token" width="300"/> <img src="https://github.com/JaysonKhan/telegram_bot_crashlytics/blob/master/images/how_to_get_chat_id.png?raw=true" alt="How to get chat ID" width="300"/>
 
 ### 2. Obtaining the Telegram Chat ID
 
@@ -43,7 +43,7 @@ Identify the `Chat ID` of the group or channel where you want to receive message
 
 After sending a test message, you should see a response similar to the following:
 
-<img src="images/result_from_chat.png" alt="Result from chat" width="400"/>
+<img src="https://github.com/JaysonKhan/telegram_bot_crashlytics/blob/master/images/result_from_chat.png?raw=true" alt="Result from chat" width="400"/>
 
 ### 4. Setting up Telegram Bot Crashlytics
 
@@ -94,3 +94,12 @@ final response = await dio.get('https://jsonplaceholder.typicode.com/posts');
 ## Join Our Channel
 
 Join our Telegram channel for updates and Flutter tips: [@FlutterMarkazi](https://t.me/FlutterMarkazi)
+
+---
+
+## Support the Project
+
+If you like this project and want to support me, consider buying me a coffee or donating via USDT TRC20:
+
+- **Buy Me a Coffee**: [buymeacoffee.com/khan347](https://www.buymeacoffee.com/khan347)
+- **USDT TRC20 Wallet**: `TPXnvYAYcsf1tMrqWfpmDy5swFpiJ737br`
