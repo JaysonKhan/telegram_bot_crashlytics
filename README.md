@@ -101,5 +101,5 @@ Join our Telegram channel for updates and Flutter tips: [@FlutterMarkazi](https:
 
 If you like this project and want to support me, consider buying me a coffee or donating via USDT TRC20:
 
-- **Buy Me a Coffee**: [buymeacoffee.com/khan347](https://www.buymeacoffee.com/khan347)
+- **Buy Me a Coffee**: [KHAN347](https://www.buymeacoffee.com/khan347)
 - **USDT TRC20 Wallet**: `TPXnvYAYcsf1tMrqWfpmDy5swFpiJ737br`

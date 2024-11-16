@@ -39,70 +39,71 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     String errorMessage;
     String sticker;
 
     /// Get the request URL, status code, status message, and error message
     String url = escapeMarkdown(err.requestOptions.uri.toString());
     String errMessage = escapeMarkdown(err.message ?? 'Unknown Error');
+    String deviceSticker = getDeviceSticker();
     String device = getDevice();
 
     /// Define sticker and create an error message with stickers for each line
     switch (err.type) {
-      case DioErrorType.sendTimeout:
+      case DioExceptionType.sendTimeout:
         sticker = '⏰';
         errorMessage = "$sticker *Send Timeout Error*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
-      case DioErrorType.receiveTimeout:
+      case DioExceptionType.receiveTimeout:
         sticker = '⏳';
         errorMessage = "$sticker *Receive Timeout Error*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
-      case DioErrorType.cancel:
+      case DioExceptionType.cancel:
         sticker = '🚫';
         errorMessage = "$sticker *Request Cancelled*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
-      case DioErrorType.connectionTimeout:
+      case DioExceptionType.connectionTimeout:
         sticker = '🔗';
         errorMessage = "$sticker *Connection Timeout*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
-      case DioErrorType.badCertificate:
+      case DioExceptionType.badCertificate:
         sticker = '📜';
         errorMessage = "$sticker *Bad Certificate Error*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
-      case DioErrorType.connectionError:
+      case DioExceptionType.connectionError:
         sticker = '🔌';
         errorMessage = "$sticker *Connection Error*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
 
-      case DioErrorType.unknown:
+      case DioExceptionType.unknown:
       default:
         sticker = '🤷🏻‍♀️🤷🏻‍♂️';
         errorMessage = "$sticker *Unknown Error*\n\n"
-            "📱 *Device:* $device\n"
+            "$deviceSticker *Device:* $device\n"
             "💬 *Message:* $errMessage\n"
             "🌐 *URL:* `$url`";
         break;
@@ -124,10 +125,11 @@ class TelegramErrorInterceptor extends Interceptor {
       String statusCode = escapeMarkdown(response.statusCode.toString());
       String requestMessage = escapeMarkdown(response.requestOptions.data?.toString() ?? 'No request data');
       String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
+      String deviceSticker = getDeviceSticker();
       String device = getDevice();
 
       String errorMessage = "$sticker *Bad Response*\n\n"
-          "📱 *Device:* $device\n"
+          "$deviceSticker *Device:* $device\n"
           "🔴 *Method:* `$method`\n"
           "⚠️ *Status Code:* `$statusCode`\n"
           "🌐 *URL:* `$url`\n"
@@ -148,21 +150,43 @@ class TelegramErrorInterceptor extends Interceptor {
     String device = 'Unknown Device';
     switch (Platform.operatingSystem) {
       case 'android':
-        device = '📱 Android';
+        device = 'Android';
         break;
       case 'ios':
-        device = '🍏 iOS';
+        device = 'iOS';
         break;
       case 'linux':
-        device = '📟 Linux';
+        device = 'Linux';
         break;
       case 'macos':
-        device = '🖥 macOS';
+        device = 'macOS';
         break;
       case 'windows':
-        device = '💠 Windows';
+        device = 'Windows';
         break;
     }
     return device;
+  }
+
+  String getDeviceSticker() {
+    String sticker = '🤷🏻‍♀️🤷🏻‍♂️';
+    switch (Platform.operatingSystem) {
+      case 'android':
+        sticker = '📱';
+        break;
+      case 'ios':
+        sticker = '🍏';
+        break;
+      case 'linux':
+        sticker = '📟';
+        break;
+      case 'macos':
+        sticker = '🖥';
+        break;
+      case 'windows':
+        sticker = '💠';
+        break;
+    }
+    return sticker;
   }
 }
