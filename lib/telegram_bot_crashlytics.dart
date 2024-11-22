@@ -10,13 +10,19 @@ class TelegramBotCrashlytics {
   /// Telegram Chat ID: The ID of the chat where the error messages will be sent
   final int chatId;
 
+  final List<int> ignoreStatusCodes;
+
   static TelegramBotCrashlytics? _instance;
 
-  TelegramBotCrashlytics._internal({required this.botToken, required this.chatId}) {
-    _telegramErrorInterceptor = TelegramErrorInterceptor(botToken: botToken, chatId: chatId);
+  TelegramBotCrashlytics._internal({
+    required this.botToken,
+    required this.chatId,
+    this.ignoreStatusCodes = const [],
+  }) {
+    _telegramErrorInterceptor = TelegramErrorInterceptor(botToken: botToken, chatId: chatId, ignoreStatusCodes: ignoreStatusCodes);
   }
 
-  factory TelegramBotCrashlytics({required String botToken, required int chatId}) {
+  factory TelegramBotCrashlytics({required String botToken, required int chatId, List<int>? ignoreStatusCodes}) {
     _instance ??= TelegramBotCrashlytics._internal(botToken: botToken, chatId: chatId);
     return _instance!;
   }

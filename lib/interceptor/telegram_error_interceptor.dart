@@ -12,17 +12,20 @@ class TelegramErrorInterceptor extends Interceptor {
   /// Telegram Chat ID
   final int chatId;
 
+  final List<int> ignoreStatusCodes;
+
   /// Singleton instance
   static TelegramErrorInterceptor? _instance;
 
   /// Singleton factory
-  factory TelegramErrorInterceptor({required String botToken, required int chatId}) {
-    _instance ??= TelegramErrorInterceptor._internal(botToken, chatId);
+  factory TelegramErrorInterceptor(
+      {required String botToken, required int chatId, required List<int> ignoreStatusCodes}) {
+    _instance ??= TelegramErrorInterceptor._internal(botToken, chatId, ignoreStatusCodes);
     return _instance!;
   }
 
   /// Private constructor
-  TelegramErrorInterceptor._internal(this.botToken, this.chatId);
+  TelegramErrorInterceptor._internal(this.botToken, this.chatId, this.ignoreStatusCodes);
 
   /// Send error message to Telegram function
   Future<void> sendErrorToTelegram(String errorMessage) async {
@@ -118,7 +121,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if ((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) {
+    if (((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) &&
+        !ignoreStatusCodes.contains(response.statusCode)) {
       String sticker = '🔴';
       String method = escapeMarkdown(response.requestOptions.method);
       String url = escapeMarkdown(response.requestOptions.uri.toString());
