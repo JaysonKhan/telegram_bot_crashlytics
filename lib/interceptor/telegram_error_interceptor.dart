@@ -20,13 +20,17 @@ class TelegramErrorInterceptor extends Interceptor {
 
   /// Singleton factory
   factory TelegramErrorInterceptor(
-      {required String botToken, required int chatId, required List<int> ignoreStatusCodes}) {
-    _instance ??= TelegramErrorInterceptor._internal(botToken, chatId, ignoreStatusCodes);
+      {required String botToken,
+      required int chatId,
+      required List<int> ignoreStatusCodes}) {
+    _instance ??=
+        TelegramErrorInterceptor._internal(botToken, chatId, ignoreStatusCodes);
     return _instance!;
   }
 
   /// Private constructor
-  TelegramErrorInterceptor._internal(this.botToken, this.chatId, this.ignoreStatusCodes);
+  TelegramErrorInterceptor._internal(
+      this.botToken, this.chatId, this.ignoreStatusCodes);
 
   /// Send error message to Telegram function
   Future<void> sendErrorToTelegram(String errorMessage) async {
@@ -43,7 +47,8 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
     String errorMessage;
     String sticker;
 
@@ -121,15 +126,19 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    if (((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) &&
+  Future<void> onResponse(
+      Response response, ResponseInterceptorHandler handler) async {
+    if (((response.statusCode ?? 0) < 200 ||
+            (response.statusCode ?? 0) >= 300) &&
         !ignoreStatusCodes.contains(response.statusCode)) {
       String sticker = '🔴';
       String method = escapeMarkdown(response.requestOptions.method);
       String url = escapeMarkdown(response.requestOptions.uri.toString());
       String statusCode = escapeMarkdown(response.statusCode.toString());
-      String requestMessage = escapeMarkdown(response.requestOptions.data?.toString() ?? 'No request data');
-      String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
+      String requestMessage = escapeMarkdown(
+          response.requestOptions.data?.toString() ?? 'No request data');
+      String responseData =
+          escapeMarkdown(response.data?.toString() ?? 'No response data');
       String deviceSticker = getDeviceSticker();
       String device = await getDevice();
 
@@ -148,8 +157,10 @@ class TelegramErrorInterceptor extends Interceptor {
   /// Escape MarkdownV2 special characters
   String escapeMarkdown(String text) {
     return text.replaceAllMapped(
-        RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
+        RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'),
+        (match) => '\\${match[0]}');
   }
+
   Future<String> getDevice() async {
     String deviceInfo = 'Unknown Device';
     final deviceInfoPlugin = DeviceInfoPlugin();

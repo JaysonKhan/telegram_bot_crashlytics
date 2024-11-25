@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.0] - Updated
+## [1.1.1] - Updated
 
 ### Added
 - Introduced `ignoreStatusCodes` parameter to `TelegramErrorInterceptor` to allow selective ignoring of specific HTTP status codes.

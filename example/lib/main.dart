@@ -41,7 +41,8 @@ class MyApp extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            TelegramBotCrashlytics.instance.sendInfoToTelegram('Example info message');
+            TelegramBotCrashlytics.instance
+                .sendInfoToTelegram('Example info message');
           },
           child: const Icon(Icons.send),
         ),
