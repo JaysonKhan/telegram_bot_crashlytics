@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/dart_telegram_bot.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/telegram_entities.dart';
@@ -42,7 +43,7 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     String errorMessage;
     String sticker;
 
@@ -50,7 +51,7 @@ class TelegramErrorInterceptor extends Interceptor {
     String url = escapeMarkdown(err.requestOptions.uri.toString());
     String errMessage = escapeMarkdown(err.message ?? 'Unknown Error');
     String deviceSticker = getDeviceSticker();
-    String device = getDevice();
+    String device = await getDevice();
 
     /// Define sticker and create an error message with stickers for each line
     switch (err.type) {
@@ -120,7 +121,7 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
+  Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     if (((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) &&
         !ignoreStatusCodes.contains(response.statusCode)) {
       String sticker = '🔴';
@@ -130,7 +131,7 @@ class TelegramErrorInterceptor extends Interceptor {
       String requestMessage = escapeMarkdown(response.requestOptions.data?.toString() ?? 'No request data');
       String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
       String deviceSticker = getDeviceSticker();
-      String device = getDevice();
+      String device = await getDevice();
 
       String errorMessage = "$sticker *Bad Response*\n\n"
           "$deviceSticker *Device:* $device\n"
@@ -149,27 +150,28 @@ class TelegramErrorInterceptor extends Interceptor {
     return text.replaceAllMapped(
         RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
   }
+  Future<String> getDevice() async {
+    String deviceInfo = 'Unknown Device';
+    final deviceInfoPlugin = DeviceInfoPlugin();
 
-  String getDevice() {
-    String device = 'Unknown Device';
-    switch (Platform.operatingSystem) {
-      case 'android':
-        device = 'Android';
-        break;
-      case 'ios':
-        device = 'iOS';
-        break;
-      case 'linux':
-        device = 'Linux';
-        break;
-      case 'macos':
-        device = 'macOS';
-        break;
-      case 'windows':
-        device = 'Windows';
-        break;
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      deviceInfo = 'Android ${androidInfo.model}';
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      deviceInfo = 'iOS ${iosInfo.utsname.machine}';
+    } else if (Platform.isLinux) {
+      final linuxInfo = await deviceInfoPlugin.linuxInfo;
+      deviceInfo = 'Linux ${linuxInfo.prettyName}';
+    } else if (Platform.isMacOS) {
+      final macInfo = await deviceInfoPlugin.macOsInfo;
+      deviceInfo = 'macOS ${macInfo.model}';
+    } else if (Platform.isWindows) {
+      final windowsInfo = await deviceInfoPlugin.windowsInfo;
+      deviceInfo = 'Windows ${windowsInfo.computerName}';
     }
-    return device;
+
+    return deviceInfo;
   }
 
   String getDeviceSticker() {
