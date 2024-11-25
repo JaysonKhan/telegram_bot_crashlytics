@@ -1,4 +1,4 @@
-library telegram_bot_crashlytics;
+library;
 
 import 'package:dio/dio.dart';
 import 'package:telegram_bot_crashlytics/interceptor/telegram_error_interceptor.dart';
@@ -17,13 +17,13 @@ class TelegramBotCrashlytics {
   TelegramBotCrashlytics._internal({
     required this.botToken,
     required this.chatId,
-    this.ignoreStatusCodes = const [],
+    required this.ignoreStatusCodes,
   }) {
     _telegramErrorInterceptor = TelegramErrorInterceptor(botToken: botToken, chatId: chatId, ignoreStatusCodes: ignoreStatusCodes);
   }
 
   factory TelegramBotCrashlytics({required String botToken, required int chatId, List<int>? ignoreStatusCodes}) {
-    _instance ??= TelegramBotCrashlytics._internal(botToken: botToken, chatId: chatId);
+    _instance ??= TelegramBotCrashlytics._internal(botToken: botToken, chatId: chatId, ignoreStatusCodes: ignoreStatusCodes ?? []);
     return _instance!;
   }
 
