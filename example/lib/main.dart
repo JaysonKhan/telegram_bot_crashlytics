@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:telegram_bot_crashlytics/telegram_bot_crashlytics.dart';
@@ -18,10 +17,10 @@ void main() {
 
   // Wrap the runApp call inside runZonedGuarded to catch uncaught errors globally
   runZonedGuarded(
-        () {
+    () {
       runApp(const MyApp());
     },
-        (error, stack) {
+    (error, stack) {
       // Send uncaught errors and their stack traces to Telegram
       crashlytics.sendErrorToTelegram('Error: \$error\nStack: \$stack');
     },

@@ -28,7 +28,8 @@ class TelegramErrorInterceptor extends Interceptor {
     required List<int> ignoreStatusCodes,
     required bool includeHeaders,
   }) {
-    _instance ??= TelegramErrorInterceptor._internal(botToken, chatId, ignoreStatusCodes, includeHeaders);
+    _instance ??= TelegramErrorInterceptor._internal(
+        botToken, chatId, ignoreStatusCodes, includeHeaders);
     return _instance!;
   }
 
@@ -55,7 +56,8 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
     String errorMessage;
     String sticker;
     String requestHeaders = '';
@@ -77,7 +79,8 @@ class TelegramErrorInterceptor extends Interceptor {
     switch (err.type) {
       case DioExceptionType.sendTimeout:
         sticker = '⏰';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Send Timeout Error*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -86,7 +89,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
       case DioExceptionType.receiveTimeout:
         sticker = '⏳';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Receive Timeout Error*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -95,7 +99,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
       case DioExceptionType.cancel:
         sticker = '🚫';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Request Cancelled*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -104,7 +109,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
       case DioExceptionType.connectionTimeout:
         sticker = '🔗';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Connection Timeout*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -113,7 +119,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
       case DioExceptionType.badCertificate:
         sticker = '📜';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Bad Certificate Error*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -122,7 +129,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
       case DioExceptionType.connectionError:
         sticker = '🔌';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Connection Error*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -130,7 +138,8 @@ class TelegramErrorInterceptor extends Interceptor {
         break;
       case DioExceptionType.badResponse:
         sticker = '🔌';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Bad Response*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "🔴 *Method:* `${err.requestOptions.method}`\n"
@@ -143,7 +152,8 @@ class TelegramErrorInterceptor extends Interceptor {
 
       default:
         sticker = '🤷🏻‍♀️🤷🏻‍♂️';
-        errorMessage = "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
+        errorMessage =
+            "#️⃣TAGS: #${err.requestOptions.method}, #${err.response?.statusCode}, #${err.type.name}\n"
             "$sticker *Unknown Error*\n\n"
             "$deviceSticker *Device:* #$device\n"
             "💬 *Message:* $errMessage\n"
@@ -159,15 +169,19 @@ class TelegramErrorInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    if (((response.statusCode ?? 0) < 200 || (response.statusCode ?? 0) >= 300) &&
+  Future<void> onResponse(
+      Response response, ResponseInterceptorHandler handler) async {
+    if (((response.statusCode ?? 0) < 200 ||
+            (response.statusCode ?? 0) >= 300) &&
         !ignoreStatusCodes.contains(response.statusCode)) {
       String sticker = '🔴';
       String method = escapeMarkdown(response.requestOptions.method);
       String url = escapeMarkdown(response.requestOptions.uri.toString());
       String statusCode = escapeMarkdown(response.statusCode.toString());
-      String requestMessage = escapeMarkdown(response.requestOptions.data?.toString() ?? 'No request data');
-      String responseData = escapeMarkdown(response.data?.toString() ?? 'No response data');
+      String requestMessage = escapeMarkdown(
+          response.requestOptions.data?.toString() ?? 'No request data');
+      String responseData =
+          escapeMarkdown(response.data?.toString() ?? 'No response data');
       String deviceSticker = getDeviceSticker();
       String device = await getDevice();
       String requestHeaders = '';
@@ -193,7 +207,8 @@ class TelegramErrorInterceptor extends Interceptor {
   /// Escape MarkdownV2 special characters
   String escapeMarkdown(String text) {
     return text.replaceAllMapped(
-        RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'), (match) => '\\${match[0]}');
+        RegExp(r'([_*`$begin:math:display$$end:math:display${}()~>#+\-=|.!])'),
+        (match) => '\\${match[0]}');
   }
 
   Future<String> getDevice() async {
