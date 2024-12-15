@@ -20,7 +20,7 @@ Add the following line to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  telegram_bot_crashlytics: ^1.2.0
+  telegram_bot_crashlytics: ^1.2.3
 ```
 
 Or, install it via the command line:
@@ -28,6 +28,8 @@ Or, install it via the command line:
 ```bash
 flutter pub add telegram_bot_crashlytics
 ```
+
+> **Note:** If you encounter any issues with the latest version, consider using version `1.2.0` for stability.
 
 ## Usage
 
