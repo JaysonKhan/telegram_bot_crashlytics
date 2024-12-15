@@ -11,6 +11,8 @@ Telegram Bot Crashlytics is a package that works with the `Dio` library to send 
 - Allows sending additional messages (for example, user notifications or system status updates).
 - Retrieves detailed device information and appends it to error messages for enhanced debugging.
 - Lets you selectively ignore specific HTTP status codes with the `ignoreStatusCodes` parameter.
+- **New:** Include request headers in error messages using the `includeHeaders` parameter.
+- **New:** Errors are categorized with hashtags for HTTP method types and status codes.
 
 ## Installation
 
@@ -18,7 +20,7 @@ Add the following line to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  telegram_bot_crashlytics: ^1.1.0
+  telegram_bot_crashlytics: ^1.1.2
 ```
 
 Or, install it via the command line:
@@ -58,14 +60,13 @@ Configure the package in your app as follows:
 import 'package:telegram_bot_crashlytics/telegram_bot_crashlytics.dart';
 
 void main() {
-  // Set up Telegram Bot Crashlytics
   final telegramCrashlytics = TelegramBotCrashlytics(
     botToken: 'YOUR_BOT_TOKEN',
     chatId: YOUR_CHAT_ID,
-    ignoreStatusCodes: [400, 404], // Add ignored status codes here
+    ignoreStatusCodes: [400, 404],
+    includeHeaders: true, // Include request headers in error messages
   );
 
-  // Set up Dio and add the interceptor
   final dio = Dio();
   dio.interceptors.add(telegramCrashlytics.interceptor);
 }
@@ -85,11 +86,11 @@ await telegramCrashlytics.sendInfoToTelegram("Provide additional information her
 ## Additional Settings
 
 - **Device Information**:
-    - Automatically adds device details (e.g., Android model, iOS version) to error messages.
-    - Each device type is represented with an emoji sticker for quick identification in Telegram.
+  - Automatically adds device details (e.g., Android model, iOS version) to error messages.
+  - Each device type is represented with an emoji sticker for quick identification in Telegram.
 
 - **Selective Ignoring of HTTP Status Codes**:
-    - Use the `ignoreStatusCodes` parameter to exclude specific status codes from being sent to Telegram.
+  - Use the `ignoreStatusCodes` parameter to exclude specific status codes from being sent to Telegram.
 
 ### Example
 

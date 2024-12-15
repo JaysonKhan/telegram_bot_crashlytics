@@ -1,6 +1,6 @@
 name: telegram_bot_crashlytics
-description: "A new Flutter package which xullas apidan kelgan bad responcelani telegram guruhingizga tashlab beradi"
-version: 1.1.1
+description: "A Flutter package that automatically sends bad HTTP responses from API requests directly to your Telegram group for easier monitoring and debugging."
+version: 1.2.0
 homepage: "https://github.com/JaysonKhan/telegram_bot_crashlytics.git"
 repository: "https://github.com/JaysonKhan/telegram_bot_crashlytics"
 license: "MIT"

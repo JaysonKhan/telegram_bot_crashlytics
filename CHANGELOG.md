@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] - 2024-12-15
+
+### Added
+- Introduced `includeHeaders` parameter to `TelegramErrorInterceptor` to include request headers in error messages.
+- Enhanced error messages with HTTP method and status code as hashtags for better filtering in Telegram.
+
+### Changed
+- Improved error message formatting by adding hashtags based on method types and status codes for better categorization.
+
 ## [1.1.1] - Updated
 
 ### Added
