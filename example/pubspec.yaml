@@ -11,7 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  telegram_bot_crashlytics: ^1.2.0
+  telegram_bot_crashlytics:
+    git:
+      url: https://github.com/JaysonKhan/telegram_bot_crashlytics.git
+      ref: middle_version
 
 dev_dependencies:
   flutter_test:
