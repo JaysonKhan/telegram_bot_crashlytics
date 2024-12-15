@@ -20,7 +20,7 @@ Add the following line to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  telegram_bot_crashlytics: ^1.1.2
+  telegram_bot_crashlytics: ^1.2.0
 ```
 
 Or, install it via the command line:
