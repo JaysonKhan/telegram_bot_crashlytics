@@ -20,7 +20,7 @@ Add the following line to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  telegram_bot_crashlytics: ^1.2.3
+  telegram_bot_crashlytics: ^1.2.4
 ```
 
 Or, install it via the command line:
@@ -115,3 +115,10 @@ If you like this project and want to support me, consider buying me a coffee or 
 
 - **Buy Me a Coffee**: [KHAN347](https://www.buymeacoffee.com/khan347)
 - **USDT TRC20 Wallet**: `TPXnvYAYcsf1tMrqWfpmDy5swFpiJ737br`
+
+---
+
+## Check Out My Other Package!
+
+Looking for efficient network caching for your HTTP requests? Check out my other Dart/Flutter package:  
+👉 [Network Cache Interceptor](https://pub.dev/packages/network_cache_interceptor)

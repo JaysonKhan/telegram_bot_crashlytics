@@ -1,4 +1,11 @@
+
 # Changelog
+
+## [1.2.4] - 2024-12-19
+
+### Fixed
+- Resolved Telegram APIException errors related to "Bad Request: can't parse entities: Character '#' is reserved and must be escaped with the preceding '\'" by improving MarkdownV2 escaping in `escapeMarkdown()` method.
+- Enhanced error message formatting to ensure compatibility with Telegram's message parsing rules.
 
 ## [1.2.3] - 2024-12-15
 
