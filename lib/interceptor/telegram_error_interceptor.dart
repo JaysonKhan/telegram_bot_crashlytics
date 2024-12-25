@@ -72,12 +72,12 @@ class TelegramErrorInterceptor extends Interceptor {
 
   /// Private constructor to initialize the interceptor.
   TelegramErrorInterceptor._internal(
-      this.botToken,
-      this.chatId,
-      this.ignoreStatusCodes,
-      this.includeHeaders,
-      this.slackWebhookUrl,
-      );
+    this.botToken,
+    this.chatId,
+    this.ignoreStatusCodes,
+    this.includeHeaders,
+    this.slackWebhookUrl,
+  );
 
   /// Sends an error message to Telegram.
   ///
@@ -172,6 +172,43 @@ class TelegramErrorInterceptor extends Interceptor {
         "${includeHeaders ? "📥 *Request Headers:*\n${escapeMarkdown(requestData)}\n\n" : ''}"
         "📝 *Request Data:* ${escapeMarkdown(requestData)}\n\n"
         "📄 *Response Data:* ${escapeMarkdown(responseData)}";
+  }
+
+  /// Intercepts Dio responses to check for non-success status codes and log errors.
+  ///
+  /// This function processes HTTP responses and checks if the status code is outside
+  /// the successful range (200-299) and not in the `ignoreStatusCodes` list.
+  /// If such a response is detected, it logs the error and sends details to Telegram and Slack.
+  @override
+  Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
+    // Check if the status code is not successful (outside the range of 200-299)
+    // and the status code is not in the ignore list
+    if ((response.statusCode ?? 0) < 200 ||
+        (response.statusCode ?? 0) >= 300 && !ignoreStatusCodes.contains(response.statusCode)) {
+      // Extract HTTP method, URL, status code, and other response details
+      String method = response.requestOptions.method;
+      String url = response.requestOptions.uri.toString();
+      String statusCode = response.statusCode.toString();
+      String requestData = response.requestOptions.data?.toString() ?? 'No request data';
+      String responseData = response.data?.toString() ?? 'No response data';
+
+      // Get device information
+      String device = await getDevice();
+
+      // Prepare request headers if includeHeaders is enabled
+      String requestHeaders = '';
+      if (includeHeaders) {
+        response.requestOptions.headers.forEach((key, value) {
+          requestHeaders += "$key: $value\n";
+        });
+      }
+
+      // Send error details to Telegram and Slack
+      await sendErrorToBoth(method, statusCode, url, device, requestData, responseData);
+    }
+
+    // Call the next handler in the chain
+    handler.next(response);
   }
 
   /// Handles Dio request errors.
