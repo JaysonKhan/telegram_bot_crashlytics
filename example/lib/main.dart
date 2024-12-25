@@ -1,21 +1,25 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:telegram_bot_crashlytics/telegram_bot_crashlytics.dart';
 
 void main() {
+  // Initialize Telegram Bot Crashlytics with Telegram bot settings and additional options
   final crashlytics = TelegramBotCrashlytics(
-    botToken: 'YOUR_BOT_TOKEN',
-    chatId: 123456789,
+    botToken: 'YOUR_BOT_TOKEN', // Replace with your actual Telegram bot token
+    chatId: 123456789, // Replace with your actual Telegram chat ID
+    ignoreStatusCodes: [400, 404], // Example: Status codes to be ignored for logging
+    includeHeaders: true, // Option to include HTTP headers in error messages
+    slackWebhookUrl: 'YOUR_SLACK_WEBHOOK_URL', // Optional: Slack Webhook URL for Slack integration
   );
-  // If you wand add to dio interceptor
-  // final dio = Dio();
-  // dio.interceptors.add(crashlytics.interceptor);
 
+  // Wrap the `runApp` function inside `runZonedGuarded` to catch global uncaught errors
   runZonedGuarded(
-    () => const MyApp(),
-    (error, stack) {
-      crashlytics.sendErrorToTelegram('Error: $error\nStack: $stack');
+        () {
+      runApp(const MyApp()); // Start the Flutter app
+    },
+        (error, stackTrace) {
+      // Send uncaught errors and stack traces to Telegram and Slack
+      crashlytics.sendErrorToBoth('Uncaught Error: $error\nStack Trace: $stackTrace');
     },
   );
 }
@@ -23,28 +27,33 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Crashlytics Example',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        useMaterial3: true, // Enable Material Design 3
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Flutter Example app for Telegram Bot Crashlytics'),
+          title: const Text('Crashlytics Example App'),
         ),
         body: const Center(
-          child: Text('Hello, World!'),
+          child: Text(
+            'Press the button to send a test message!',
+            style: TextStyle(fontSize: 16), // Simple informative message
+            textAlign: TextAlign.center,
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
+            // Send a test informational message to both Telegram and Slack
             TelegramBotCrashlytics.instance
-                .sendInfoToTelegram('Example info message');
+                .sendInfoToTelegram('This is a test informational message!');
           },
-          child: const Icon(Icons.send),
+          tooltip: 'Send Test Message', // Tooltip for the button
+          child: const Icon(Icons.send), // Send icon for better UX
         ),
       ),
     );

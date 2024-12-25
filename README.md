@@ -1,16 +1,23 @@
 
 # Telegram Bot Crashlytics
 
-Telegram Bot Crashlytics is a package that works with the `Dio` library to send application errors directly to Telegram. With this package, you can send errors from your app to your Telegram group or channel in real-time.
+Telegram Bot Crashlytics is a package that works with the `Dio` library to send application errors directly to Telegram and Slack. With this package, you can send errors from your app to your Telegram group, channel, or Slack workspace in real-time.
 
 ![Created by JaysonKhan](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExemxodXByN284b3dsdnA0bWc4c3kyYW96NTc4eGVqMHV0a2s0M250NCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Zll2OF7cp3HkAhxkJM/giphy.gif)
 
+---
+
 ## Features
-- Automatic error reporting to Telegram.
+- **Automatic error reporting to Telegram and Slack.**
 - Monitors any HTTP errors via a `Dio` interceptor.
 - Allows sending additional messages (for example, user notifications or system status updates).
 - Retrieves detailed device information and appends it to error messages for enhanced debugging.
 - Lets you selectively ignore specific HTTP status codes with the `ignoreStatusCodes` parameter.
+- **New:** Supports sending formatted error messages to Slack using a Webhook URL.
+- **New:** Include request headers in error messages using the `includeHeaders` parameter.
+- **New:** Errors are categorized with hashtags for HTTP method types and status codes.
+
+---
 
 ## Installation
 
@@ -18,7 +25,7 @@ Add the following line to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  telegram_bot_crashlytics: ^1.1.0
+  telegram_bot_crashlytics: ^1.3.3
 ```
 
 Or, install it via the command line:
@@ -26,6 +33,10 @@ Or, install it via the command line:
 ```bash
 flutter pub add telegram_bot_crashlytics
 ```
+
+> **Note:** If you encounter any issues with the latest version, consider using version `1.2.4` for stability.
+
+---
 
 ## Usage
 
@@ -44,13 +55,9 @@ Identify the `Chat ID` of the group or channel where you want to receive message
 https://api.telegram.org/bot<your-bot-token>/getUpdates
 ```
 
-### 3. Verifying the Result from Chat
+---
 
-After sending a test message, you should see a response similar to the following:
-
-![Result from chat](https://github.com/JaysonKhan/telegram_bot_crashlytics/blob/master/images/result_from_chat.png?raw=true)
-
-### 4. Setting up Telegram Bot Crashlytics
+### 3. Setting up Telegram Bot Crashlytics
 
 Configure the package in your app as follows:
 
@@ -58,38 +65,72 @@ Configure the package in your app as follows:
 import 'package:telegram_bot_crashlytics/telegram_bot_crashlytics.dart';
 
 void main() {
-  // Set up Telegram Bot Crashlytics
   final telegramCrashlytics = TelegramBotCrashlytics(
     botToken: 'YOUR_BOT_TOKEN',
     chatId: YOUR_CHAT_ID,
-    ignoreStatusCodes: [400, 404], // Add ignored status codes here
+    ignoreStatusCodes: [400, 404], // Specify status codes to ignore
+    includeHeaders: true, // Include request headers in error messages
+    slackWebhookUrl: 'YOUR_SLACK_WEBHOOK_URL', // Optional: Slack integration
   );
 
-  // Set up Dio and add the interceptor
   final dio = Dio();
   dio.interceptors.add(telegramCrashlytics.interceptor);
 }
 ```
 
-### 5. Monitoring Errors
+---
 
-When making HTTP requests with `Dio`, errors are automatically sent to Telegram via the interceptor.
+### 4. Sending Errors Manually
+
+When making HTTP requests with `Dio`, errors are automatically sent to Telegram and Slack via the interceptor.
 
 If you want to manually send a message outside of Dio errors:
 
 ```dart
+// Send error messages manually to Telegram
 await telegramCrashlytics.sendErrorToTelegram("Describe the error here.");
+
+// Send informational messages manually to Telegram
 await telegramCrashlytics.sendInfoToTelegram("Provide additional information here.");
 ```
 
-## Additional Settings
+---
+
+### 5. Slack Integration
+
+#### How to Get a Slack Webhook URL:
+1. Open Slack and navigate to your workspace.
+2. Go to **Settings & Administration > Manage Apps**.
+3. Search for **"Incoming Webhooks"** and add it to your workspace.
+4. Create a new Webhook and copy the generated URL.
+5. Pass the Webhook URL when initializing `TelegramBotCrashlytics`.
+
+#### Slack Integration Example:
+
+```dart
+final telegramCrashlytics = TelegramBotCrashlytics(
+  botToken: 'YOUR_TELEGRAM_BOT_TOKEN',
+  chatId: YOUR_CHAT_ID,
+  ignoreStatusCodes: [],
+  includeHeaders: true,
+  slackWebhookUrl: 'YOUR_SLACK_WEBHOOK_URL', // Required for Slack
+);
+```
+
+With Slack integration, all error messages are sent to your specified Slack channel.
+
+---
+
+### 6. Additional Settings
 
 - **Device Information**:
-    - Automatically adds device details (e.g., Android model, iOS version) to error messages.
-    - Each device type is represented with an emoji sticker for quick identification in Telegram.
+  - Automatically adds device details (e.g., Android model, iOS version) to error messages.
+  - Each device type is represented with an emoji sticker for quick identification.
 
 - **Selective Ignoring of HTTP Status Codes**:
-    - Use the `ignoreStatusCodes` parameter to exclude specific status codes from being sent to Telegram.
+  - Use the `ignoreStatusCodes` parameter to exclude specific status codes from being sent to Telegram or Slack.
+
+---
 
 ### Example
 
@@ -97,8 +138,10 @@ await telegramCrashlytics.sendInfoToTelegram("Provide additional information her
 // Executing HTTP request with Dio
 final response = await dio.get('https://jsonplaceholder.typicode.com/posts');
 
-// If an error occurs, it will be automatically sent to Telegram by the interceptor.
+// If an error occurs, it will be automatically sent to Telegram and Slack by the interceptor.
 ```
+
+---
 
 ## Join Our Channel
 
@@ -112,3 +155,19 @@ If you like this project and want to support me, consider buying me a coffee or 
 
 - **Buy Me a Coffee**: [KHAN347](https://www.buymeacoffee.com/khan347)
 - **USDT TRC20 Wallet**: `TPXnvYAYcsf1tMrqWfpmDy5swFpiJ737br`
+
+---
+
+## Check Out My Other Package!
+
+Looking for efficient network caching for your HTTP requests? Check out my other Dart/Flutter package:  
+👉 [Network Cache Interceptor](https://pub.dev/packages/network_cache_interceptor)
+
+---
+
+### What’s New in 1.3.3?
+
+- Added **Slack Integration** for sending errors to your Slack workspace via Webhook.
+- Enhanced error formatting for both Telegram and Slack.
+- Improved device-specific details for better debugging.
+- Optimized request and response data logging.
