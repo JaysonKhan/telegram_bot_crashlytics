@@ -6,50 +6,82 @@ import 'package:dio/dio.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/dart_telegram_bot.dart';
 import 'package:telegram_bot_crashlytics/dart_telegram_bot/telegram_entities.dart';
 
-/// An interceptor that logs API errors and sends them to a specified Telegram chat.
-/// This interceptor automatically formats the error messages using MarkdownV2 rules
-/// and supports additional features like including request headers and ignoring specific status codes.
+/// An interceptor for logging and sending API errors to Telegram and Slack.
+///
+/// Features:
+/// - Sends error and response details to Telegram using a bot.
+/// - Optionally sends error messages to Slack via Webhook.
+/// - Integrates with Dio to intercept HTTP requests and responses.
 class TelegramErrorInterceptor extends Interceptor {
-  /// Telegram Bot Token (required for authentication)
+  /// The token of the Telegram bot that sends error messages.
+  ///
+  /// Obtain this token from Telegram's `BotFather`.
   final String botToken;
 
-  /// Telegram Chat ID (required for sending messages)
+  /// The ID of the Telegram chat where error messages are sent.
+  ///
+  /// This can be a user, group, or channel ID.
   final int chatId;
 
-  /// HTTP status codes that should be ignored when sending error messages
+  /// The list of HTTP status codes to ignore when sending error messages.
+  ///
+  /// Default: An empty list (no codes are ignored).
   final List<int> ignoreStatusCodes;
 
-  /// Whether to include request headers in the error message
+  /// Whether to include HTTP headers in the error messages.
+  ///
+  /// Default: `false`.
   final bool includeHeaders;
 
-  /// Singleton instance for global access
+  /// The Slack Webhook URL for sending error messages to Slack.
+  ///
+  /// Optional. Set this to send error messages to Slack.
+  final String? slackWebhookUrl;
+
+  /// Singleton instance for the interceptor.
   static TelegramErrorInterceptor? _instance;
 
-  /// Factory constructor for creating or accessing a singleton instance
+  /// Factory constructor to create or access the singleton instance.
+  ///
+  /// Example:
+  /// ```dart
+  /// final interceptor = TelegramErrorInterceptor(
+  ///   botToken: 'YOUR_TELEGRAM_BOT_TOKEN',
+  ///   chatId: 123456789,
+  ///   ignoreStatusCodes: [400, 404],
+  ///   includeHeaders: true,
+  ///   slackWebhookUrl: 'YOUR_SLACK_WEBHOOK_URL', // Optional
+  /// );
+  /// ```
   factory TelegramErrorInterceptor({
     required String botToken,
     required int chatId,
     required List<int> ignoreStatusCodes,
     required bool includeHeaders,
+    String? slackWebhookUrl,
   }) {
     _instance ??= TelegramErrorInterceptor._internal(
       botToken,
       chatId,
       ignoreStatusCodes,
       includeHeaders,
+      slackWebhookUrl,
     );
     return _instance!;
   }
 
-  /// Private named constructor to initialize class properties
+  /// Private constructor to initialize the interceptor.
   TelegramErrorInterceptor._internal(
-    this.botToken,
-    this.chatId,
-    this.ignoreStatusCodes,
-    this.includeHeaders,
-  );
+      this.botToken,
+      this.chatId,
+      this.ignoreStatusCodes,
+      this.includeHeaders,
+      this.slackWebhookUrl,
+      );
 
-  /// Sends the formatted error message to the specified Telegram chat
+  /// Sends an error message to Telegram.
+  ///
+  /// The message is formatted using Telegram's MarkdownV2 syntax.
   Future<void> sendErrorToTelegram(String errorMessage) async {
     final bot = Bot(token: botToken);
     try {
@@ -63,12 +95,36 @@ class TelegramErrorInterceptor extends Interceptor {
     }
   }
 
-  /// Handles successful responses, checks for non-success status codes,
-  /// and sends the response details to Telegram if applicable.
+  /// Sends an error message to Slack.
+  ///
+  /// Requires the `slackWebhookUrl` to be set.
+  Future<void> sendErrorToSlack(String errorMessage) async {
+    if (slackWebhookUrl == null || errorMessage.isEmpty) return;
+
+    final dio = Dio();
+    try {
+      await dio.post(
+        slackWebhookUrl!,
+        data: {"text": errorMessage}, // Slack expects plain text messages.
+        options: Options(headers: {"Content-Type": "application/json"}),
+      );
+    } catch (e) {
+      log('Failed to send error message to Slack: $e');
+    }
+  }
+
+  /// Sends an error message to both Telegram and Slack.
+  Future<void> sendErrorToBoth(String errorMessage) async {
+    await sendErrorToTelegram(errorMessage);
+    await sendErrorToSlack(errorMessage);
+  }
+
+  /// Handles successful HTTP responses.
+  ///
+  /// Logs and sends responses with non-success status codes to Telegram and Slack.
   @override
   Future<void> onResponse(
       Response response, ResponseInterceptorHandler handler) async {
-    // Only log responses with non-success status codes that are not ignored
     if ((response.statusCode ?? 0) < 200 ||
         (response.statusCode ?? 0) >= 300 &&
             !ignoreStatusCodes.contains(response.statusCode)) {
@@ -82,7 +138,6 @@ class TelegramErrorInterceptor extends Interceptor {
       String deviceSticker = getDeviceSticker();
       String device = await getDevice();
 
-      // Collect request headers if enabled
       String requestHeaders = '';
       if (includeHeaders) {
         response.requestOptions.headers.forEach((key, value) {
@@ -90,7 +145,6 @@ class TelegramErrorInterceptor extends Interceptor {
         });
       }
 
-      // Format the response message
       String responseMessage = ""
           "\\#️⃣TAGS: ${escapeMarkdown('#$method, #STATUSCODE_$statusCode')}\n\n"
           "🔴 *Bad Response Detected*\n\n"
@@ -101,36 +155,30 @@ class TelegramErrorInterceptor extends Interceptor {
           "📄 *Response Data:* ${escapeMarkdown(responseData)}"
           "";
 
-      // Send the formatted response to Telegram
-      await sendErrorToTelegram(responseMessage);
+      await sendErrorToBoth(responseMessage);
     }
-
-    // Pass the response to the next handler
     handler.next(response);
   }
 
-  /// Handles Dio request errors, formats the message, and sends it to Telegram
+  /// Handles Dio request errors.
+  ///
+  /// Logs and sends error details to Telegram and Slack.
   @override
   Future<void> onError(
       DioException err, ErrorInterceptorHandler handler) async {
-    String errorMessage;
-    String requestHeaders = '';
-
-    // Extract essential request and device information
     String url = err.requestOptions.uri.toString();
     String errMessage = err.message ?? 'Unknown Error';
     String deviceSticker = getDeviceSticker();
     String device = await getDevice();
 
-    // Collect request headers if enabled
+    String requestHeaders = '';
     if (includeHeaders) {
       err.requestOptions.headers.forEach((key, value) {
         requestHeaders += "${key}: ${value.toString()}\n";
       });
     }
 
-    // Format error message
-    errorMessage = ""
+    String errorMessage = ""
         "\\#️⃣TAGS: ${escapeMarkdown("#${err.requestOptions.method}, #STATUSCODE_${err.response?.statusCode.toString() ?? 'Unknown'}, #${err.type.name}")}\n\n"
         "🔴 *Error Occurred*\n\n"
         "$deviceSticker *Device:* ${escapeMarkdown(device)}\n\n"
@@ -141,13 +189,11 @@ class TelegramErrorInterceptor extends Interceptor {
         "📄 *Response Data:* ${escapeMarkdown(err.response?.data?.toString() ?? 'No response data')}"
         "";
 
-    // Send the error message to Telegram and pass the error to the next handler
-    await sendErrorToTelegram(errorMessage);
+    await sendErrorToBoth(errorMessage);
     handler.next(err);
   }
 
-  /// Escapes special characters for Telegram MarkdownV2 formatting
-  /// Escapes special characters for Telegram MarkdownV2.
+  /// Escapes special characters for Telegram MarkdownV2 formatting.
   String escapeMarkdown(String text) {
     final Map<String, String> replacements = {
       '_': '\\_',
@@ -176,7 +222,7 @@ class TelegramErrorInterceptor extends Interceptor {
     return text;
   }
 
-  /// Retrieves device information based on the platform
+  /// Retrieves device information based on the platform.
   Future<String> getDevice() async {
     String deviceInfo = 'Unknown Device';
     final deviceInfoPlugin = DeviceInfoPlugin();
@@ -201,7 +247,7 @@ class TelegramErrorInterceptor extends Interceptor {
     return deviceInfo;
   }
 
-  /// Provides a platform-specific emoji sticker for easier device identification
+  /// Provides a platform-specific emoji sticker for easier device identification.
   String getDeviceSticker() {
     switch (Platform.operatingSystem) {
       case 'android':
