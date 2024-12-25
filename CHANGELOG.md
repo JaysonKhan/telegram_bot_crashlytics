@@ -1,7 +1,7 @@
 
 # Changelog
 
-## [1.3.3] - 2024-12-25
+## [1.3.4] - 2024-12-25
 
 ### Added
 - Added **Slack integration** to send error messages to Slack via a Webhook URL.

@@ -25,7 +25,7 @@ Add the following line to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  telegram_bot_crashlytics: ^1.3.3
+  telegram_bot_crashlytics: ^1.3.4
 ```
 
 Or, install it via the command line:
@@ -165,7 +165,7 @@ Looking for efficient network caching for your HTTP requests? Check out my other
 
 ---
 
-### What’s New in 1.3.3?
+### What’s New in 1.3.4?
 
 - Added **Slack Integration** for sending errors to your Slack workspace via Webhook.
 - Enhanced error formatting for both Telegram and Slack.

@@ -104,7 +104,14 @@ class TelegramErrorInterceptor extends Interceptor {
   /// The message is formatted using Slack's block format for better readability.
   /// Requires the `slackWebhookUrl` to be set.
   Future<void> sendErrorToSlack(
-      String method, String statusCode, String url, String device, String requestData, String responseData) async {
+    String method,
+    String statusCode,
+    String url,
+    String device,
+    String requestHeaders,
+    String requestData,
+    String responseData,
+  ) async {
     if (slackWebhookUrl == null) return;
 
     final dio = Dio();
@@ -112,11 +119,18 @@ class TelegramErrorInterceptor extends Interceptor {
       "blocks": [
         {
           "type": "section",
-          "text": {"type": "mrkdwn", "text": "*#️⃣ TAGS:* `${method.toUpperCase()}, STATUSCODE_$statusCode`"}
+          "text": {
+            "type": "mrkdwn",
+            "text":
+                "*#️⃣ TAGS:* `${method.toUpperCase()}, STATUSCODE_$statusCode`"
+          }
         },
         {
           "type": "section",
-          "text": {"type": "mrkdwn", "text": ":red_circle: *Bad Response Detected*"}
+          "text": {
+            "type": "mrkdwn",
+            "text": ":red_circle: *Bad Response Detected*"
+          }
         },
         {
           "type": "section",
@@ -124,15 +138,32 @@ class TelegramErrorInterceptor extends Interceptor {
         },
         {
           "type": "section",
-          "text": {"type": "mrkdwn", "text": ":globe_with_meridians: *URL:* <$url|$url>"}
+          "text": {
+            "type": "mrkdwn",
+            "text": ":globe_with_meridians: *URL:* <$url|$url>"
+          }
+        },
+        if (includeHeaders)
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": ":inbox_tray: *Request Headers:* ```$requestHeaders```"
+            }
+          },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":pencil: *Request Data:* ```$requestData```"
+          }
         },
         {
           "type": "section",
-          "text": {"type": "mrkdwn", "text": ":pencil: *Request Data:* ```$requestData```"}
-        },
-        {
-          "type": "section",
-          "text": {"type": "mrkdwn", "text": ":page_facing_up: *Response Data:* ```$responseData```"}
+          "text": {
+            "type": "mrkdwn",
+            "text": ":page_facing_up: *Response Data:* ```$responseData```"
+          }
         }
       ]
     };
@@ -155,21 +186,37 @@ class TelegramErrorInterceptor extends Interceptor {
   /// await sendErrorToBoth("Critical failure!");
   /// ```
   Future<void> sendErrorToBoth(
-      String method, String statusCode, String url, String device, String requestData, String responseData) async {
-    final errorMessage = formatTelegramMessage(method, statusCode, url, device, requestData, responseData);
+    String method,
+    String statusCode,
+    String url,
+    String device,
+    String requestHeaders,
+    String requestData,
+    String responseData,
+  ) async {
+    final errorMessage = formatTelegramMessage(method, statusCode, url, device,
+        requestHeaders, requestData, responseData);
     await sendErrorToTelegram(errorMessage);
-    await sendErrorToSlack(method, statusCode, url, device, requestData, responseData);
+    await sendErrorToSlack(method, statusCode, url, device, requestHeaders,
+        requestData, responseData);
   }
 
   /// Formats the error message for Telegram.
   String formatTelegramMessage(
-      String method, String statusCode, String url, String device, String requestData, String responseData) {
+    String method,
+    String statusCode,
+    String url,
+    String device,
+    String requestHeaders,
+    String requestData,
+    String responseData,
+  ) {
     return ""
         "\\#️⃣TAGS: ${escapeMarkdown('#$method, #STATUSCODE_$statusCode')}\n\n"
         "🔴 *Bad Response Detected*\n\n"
         "📱 *Device:* ${escapeMarkdown(device)}\n\n"
         "🌐 *URL:* `${escapeMarkdown(url)}`\n\n"
-        "${includeHeaders ? "📥 *Request Headers:*\n${escapeMarkdown(requestData)}\n\n" : ''}"
+        "${includeHeaders ? "📥 *Request Headers:*\n${escapeMarkdown(requestHeaders)}\n\n" : ''}"
         "📝 *Request Data:* ${escapeMarkdown(requestData)}\n\n"
         "📄 *Response Data:* ${escapeMarkdown(responseData)}";
   }
@@ -180,16 +227,19 @@ class TelegramErrorInterceptor extends Interceptor {
   /// the successful range (200-299) and not in the `ignoreStatusCodes` list.
   /// If such a response is detected, it logs the error and sends details to Telegram and Slack.
   @override
-  Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
+  Future<void> onResponse(
+      Response response, ResponseInterceptorHandler handler) async {
     // Check if the status code is not successful (outside the range of 200-299)
     // and the status code is not in the ignore list
     if ((response.statusCode ?? 0) < 200 ||
-        (response.statusCode ?? 0) >= 300 && !ignoreStatusCodes.contains(response.statusCode)) {
+        (response.statusCode ?? 0) >= 300 &&
+            !ignoreStatusCodes.contains(response.statusCode)) {
       // Extract HTTP method, URL, status code, and other response details
       String method = response.requestOptions.method;
       String url = response.requestOptions.uri.toString();
       String statusCode = response.statusCode.toString();
-      String requestData = response.requestOptions.data?.toString() ?? 'No request data';
+      String requestData =
+          response.requestOptions.data?.toString() ?? 'No request data';
       String responseData = response.data?.toString() ?? 'No response data';
 
       // Get device information
@@ -204,7 +254,15 @@ class TelegramErrorInterceptor extends Interceptor {
       }
 
       // Send error details to Telegram and Slack
-      await sendErrorToBoth(method, statusCode, url, device, requestData, responseData);
+      await sendErrorToBoth(
+        method,
+        statusCode,
+        url,
+        device,
+        requestHeaders,
+        requestData,
+        responseData,
+      );
     }
 
     // Call the next handler in the chain
@@ -215,16 +273,25 @@ class TelegramErrorInterceptor extends Interceptor {
   ///
   /// Logs and sends error details to Telegram and Slack.
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
     String method = err.requestOptions.method;
     String url = err.requestOptions.uri.toString();
     String statusCode = err.response?.statusCode.toString() ?? 'Unknown';
-    String requestData = err.requestOptions.data?.toString() ?? 'No request data';
+    String requestHeaders = '';
+    if (includeHeaders) {
+      err.requestOptions.headers.forEach((key, value) {
+        requestHeaders += "$key: $value\n";
+      });
+    }
+    String requestData =
+        err.requestOptions.data?.toString() ?? 'No request data';
     String responseData = err.response?.data?.toString() ?? 'No response data';
 
     String device = await getDevice();
 
-    await sendErrorToBoth(method, statusCode, url, device, requestData, responseData);
+    await sendErrorToBoth(method, statusCode, url, device, requestHeaders,
+        requestData, responseData);
     handler.next(err);
   }
 

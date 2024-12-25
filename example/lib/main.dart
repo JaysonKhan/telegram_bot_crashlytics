@@ -7,19 +7,24 @@ void main() {
   final crashlytics = TelegramBotCrashlytics(
     botToken: 'YOUR_BOT_TOKEN', // Replace with your actual Telegram bot token
     chatId: 123456789, // Replace with your actual Telegram chat ID
-    ignoreStatusCodes: [400, 404], // Example: Status codes to be ignored for logging
+    ignoreStatusCodes: [
+      400,
+      404
+    ], // Example: Status codes to be ignored for logging
     includeHeaders: true, // Option to include HTTP headers in error messages
-    slackWebhookUrl: 'YOUR_SLACK_WEBHOOK_URL', // Optional: Slack Webhook URL for Slack integration
+    slackWebhookUrl:
+        'YOUR_SLACK_WEBHOOK_URL', // Optional: Slack Webhook URL for Slack integration
   );
 
   // Wrap the `runApp` function inside `runZonedGuarded` to catch global uncaught errors
   runZonedGuarded(
-        () {
+    () {
       runApp(const MyApp()); // Start the Flutter app
     },
-        (error, stackTrace) {
+    (error, stackTrace) {
       // Send uncaught errors and stack traces to Telegram and Slack
-      crashlytics.sendErrorToBoth('Uncaught Error: $error\nStack Trace: $stackTrace');
+      crashlytics
+          .sendErrorToBoth('Uncaught Error: $error\nStack Trace: $stackTrace');
     },
   );
 }
