@@ -215,6 +215,7 @@ class TelegramErrorInterceptor extends Interceptor {
           requestHeaders += "$key: $value\n";
         });
       }
+      requestData = '$requestData\nHEADER:\n$requestHeaders';
 
       // Send error details to Telegram and Slack
       await sendErrorToBoth(method, statusCode, url, device, requestData, responseData);
