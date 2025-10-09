@@ -155,7 +155,13 @@ class TelegramErrorInterceptor extends Interceptor {
   /// await sendErrorToBoth("Critical failure!");
   /// ```
   Future<void> sendErrorToBoth(
-      String method, String statusCode, String url, String device, String requestData, String responseData) async {
+    String method,
+    String statusCode,
+    String url,
+    String device,
+    String requestData,
+    String responseData,
+  ) async {
     final errorMessage = formatTelegramMessage(method, statusCode, url, device, requestData, responseData);
     await sendErrorToTelegram(errorMessage);
     await sendErrorToSlack(method, statusCode, url, device, requestData, responseData);
@@ -163,7 +169,13 @@ class TelegramErrorInterceptor extends Interceptor {
 
   /// Formats the error message for Telegram.
   String formatTelegramMessage(
-      String method, String statusCode, String url, String device, String requestData, String responseData) {
+    String method,
+    String statusCode,
+    String url,
+    String device,
+    String requestData,
+    String responseData,
+  ) {
     return ""
         "\\#️⃣TAGS: ${escapeMarkdown('#$method, #STATUSCODE_$statusCode')}\n\n"
         "🔴 *Bad Response Detected*\n\n"
@@ -171,7 +183,8 @@ class TelegramErrorInterceptor extends Interceptor {
         "🌐 *URL:* `${escapeMarkdown(url)}`\n\n"
         "${includeHeaders ? "📥 *Request Headers:*\n${escapeMarkdown(requestData)}\n\n" : ''}"
         "📝 *Request Data:* ${escapeMarkdown(requestData)}\n\n"
-        "📄 *Response Data:* ${escapeMarkdown(responseData)}";
+        "📄 *Response Data:* ${escapeMarkdown(responseData)}"
+        "";
   }
 
   /// Intercepts Dio responses to check for non-success status codes and log errors.
@@ -188,9 +201,10 @@ class TelegramErrorInterceptor extends Interceptor {
       // Extract HTTP method, URL, status code, and other response details
       String method = response.requestOptions.method;
       String url = response.requestOptions.uri.toString();
-      String statusCode = response.statusCode.toString();
+      String statusCode = response.statusCode?.toString() ?? 'NULL';
       String requestData = response.requestOptions.data?.toString() ?? 'No request data';
-      String responseData = response.data?.toString() ?? 'No response data';
+      String responseData =
+          response.data?.toString() ?? (response.statusCode == null ? 'ERROR: ${response.statusMessage}' : 'No response data');
 
       // Get device information
       String device = await getDevice();
