@@ -232,13 +232,48 @@ class TelegramErrorInterceptor extends Interceptor {
   Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     String method = err.requestOptions.method;
     String url = err.requestOptions.uri.toString();
-    String statusCode = err.response?.statusCode.toString() ?? 'NULL';
+    String statusCode = err.response?.statusCode?.toString() ?? 'NULL';
     String requestData = err.requestOptions.data?.toString() ?? 'No request data';
-    String responseData = '${err.response?.data?.toString() ?? 'ERROR: ${err.response?.statusMessage ?? "UNKNOWN"}'}\n\nTYPE: ${err.type}';
+    String responseData =
+        '${err.response?.data?.toString() ?? 'ERROR: ${err.response?.statusMessage ?? "UNKNOWN"}'}\n\nTYPE: ${err.type}';
 
     String device = await getDevice();
 
-    await sendErrorToBoth(method, statusCode, url, device, requestData, responseData);
+    // 🔍 SSL / sertifikat bilan bog‘liq xatolarni aniqlash
+    if (err.error is HandshakeException ||
+        (err.message?.contains('CERTIFICATE_VERIFY_FAILED') ?? false)) {
+      responseData = 'SSL / Certificate error: ${err.message ?? err.error.toString()}';
+      log('🔒 SSL error detected: ${err.message}');
+    }
+
+    // 🔍 Internet uzilgan yoki DNS ishlamayapti
+    else if (err.error is SocketException) {
+      responseData = 'No Internet or DNS issue: ${err.error.toString()}';
+      log('🌐 Network error: ${err.error}');
+    }
+
+    // 🔍 Timeout holatlari
+    else if (err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        err.type == DioExceptionType.sendTimeout) {
+      responseData = '⏱ Timeout error: ${err.message ?? 'Unknown timeout'}';
+    }
+
+    // 🔍 Response null bo‘lsa
+    else if (err.response == null) {
+      responseData = '❌ Unknown Dio error: ${err.message ?? 'No response'}';
+    }
+
+    // 🔍 Log serverga yuborish
+    await sendErrorToBoth(
+      method,
+      statusCode,
+      url,
+      device,
+      requestData,
+      responseData,
+    );
+
     handler.next(err);
   }
 
