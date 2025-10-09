@@ -232,9 +232,9 @@ class TelegramErrorInterceptor extends Interceptor {
   Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     String method = err.requestOptions.method;
     String url = err.requestOptions.uri.toString();
-    String statusCode = err.response?.statusCode.toString() ?? 'Unknown';
+    String statusCode = err.response?.statusCode.toString() ?? 'NULL';
     String requestData = err.requestOptions.data?.toString() ?? 'No request data';
-    String responseData = err.response?.data?.toString() ?? 'No response data';
+    String responseData = err.response?.data?.toString() ?? 'ERROR: ${err.response?.statusMessage ?? "UNKNOWN"}';
 
     String device = await getDevice();
 
