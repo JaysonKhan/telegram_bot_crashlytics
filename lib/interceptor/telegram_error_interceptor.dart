@@ -234,7 +234,7 @@ class TelegramErrorInterceptor extends Interceptor {
     String url = err.requestOptions.uri.toString();
     String statusCode = err.response?.statusCode.toString() ?? 'NULL';
     String requestData = err.requestOptions.data?.toString() ?? 'No request data';
-    String responseData = err.response?.data?.toString() ?? 'ERROR: ${err.response?.statusMessage ?? "UNKNOWN"}';
+    String responseData = '${err.response?.data?.toString() ?? 'ERROR: ${err.response?.statusMessage ?? "UNKNOWN"}'}\n\nTYPE: ${err.type}';
 
     String device = await getDevice();
 
