@@ -203,8 +203,7 @@ class TelegramErrorInterceptor extends Interceptor {
       String url = response.requestOptions.uri.toString();
       String statusCode = response.statusCode?.toString() ?? 'NULL';
       String requestData = response.requestOptions.data?.toString() ?? 'No request data';
-      String responseData =
-          response.data?.toString() ?? (response.statusCode == null ? 'ERROR: ${response.statusMessage}' : 'No response data');
+      String responseData = response.data?.toString() ?? 'ERROR: ${response.statusMessage}';
 
       // Get device information
       String device = await getDevice();
